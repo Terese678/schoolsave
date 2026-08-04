@@ -1,0 +1,9 @@
+# Dependencies, reinstalled from package.json, never committed.
+node_modules
+
+# Hardhat build outputs, regenerated on every compile.
+artifacts
+cache
+
+# Environment variables and secrets, never committed.
+.env
