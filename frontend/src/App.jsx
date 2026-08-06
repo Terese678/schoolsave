@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { BrowserProvider, Contract, parseEther } from "ethers";
+import { useState, useEffect } from "react";
+import { BrowserProvider, JsonRpcProvider, Contract, parseEther, formatEther } from "ethers";
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "./contractConfig";
 import "./App.css";
 
@@ -18,6 +18,9 @@ function App() {
 
   // Form field for contributing to a goal. Hardcoded to goal 0 for now, the first goal created during testing.
   const [contributionAmount, setContributionAmount] = useState("");
+
+  // Holds goal 0's progress, read directly from the contract.
+  const [progress, setProgress] = useState(null);
 
   // Opens MetaMask and asks the user to connect their wallet to this site.
   async function connectWallet() {
@@ -38,6 +41,27 @@ function App() {
     return new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
   }
 
+  // Reads goal 0's progress from the contract and stores it as plain numbers for display.
+  async function loadProgress() {
+    // Reads don't need a wallet signer, connecting straight to BOT Chain's RPC
+    // avoids conflicts between multiple installed wallet extensions.
+    const provider = new JsonRpcProvider("https://rpc.bohr.life");
+    const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+
+    const result = await contract.getProgress(0);
+    setProgress({
+      saved: formatEther(result.saved),
+      target: formatEther(result.target),
+      remainingAmount: formatEther(result.remainingAmount),
+      secondsRemaining: Number(result.secondsRemaining),
+    });
+  }
+
+  // Loads progress once when the app first renders.
+  useEffect(() => {
+    loadProgress();
+  }, []);
+
   // Sends the create goal form to the contract.
   async function handleCreateGoal(event) {
     event.preventDefault();
@@ -48,8 +72,6 @@ function App() {
     }
 
     const contract = await getContract();
-
-    // The contract expects the deadline as a unix timestamp, the form gives us a date string.
     const deadlineTimestamp = Math.floor(new Date(deadline).getTime() / 1000);
 
     const tx = await contract.createGoal(
@@ -65,6 +87,7 @@ function App() {
     setTargetAmount("");
     setDeadline("");
     setPayoutAddress("");
+    loadProgress();
   }
 
   // Sends a contribution toward goal 0, the value is attached to the transaction itself, not passed as a parameter.
@@ -77,12 +100,20 @@ function App() {
     }
 
     const contract = await getContract();
-
     const tx = await contract.contribute(0, { value: parseEther(contributionAmount) });
     await tx.wait();
 
     alert("Contribution successful.");
     setContributionAmount("");
+    loadProgress();
+  }
+
+  // Converts a number of seconds into a simple days and hours display, easier to read than raw seconds.
+  function formatTimeRemaining(seconds) {
+    if (seconds <= 0) return "Deadline has passed";
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    return `${days} day(s), ${hours} hour(s) remaining`;
   }
 
   return (
@@ -144,6 +175,18 @@ function App() {
         />
         <button type="submit">Contribute</button>
       </form>
+
+      <h2>Progress</h2>
+      {progress ? (
+        <div>
+          <p>Saved: {progress.saved} BOT</p>
+          <p>Target: {progress.target} BOT</p>
+          <p>Remaining: {progress.remainingAmount} BOT</p>
+          <p>{formatTimeRemaining(progress.secondsRemaining)}</p>
+        </div>
+      ) : (
+        <p>Loading progress...</p>
+      )}
     </div>
   );
 }
