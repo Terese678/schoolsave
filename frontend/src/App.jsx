@@ -1,28 +1,24 @@
 import { useState, useEffect } from "react";
 import { BrowserProvider, JsonRpcProvider, Contract, parseEther, formatEther } from "ethers";
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "./contractConfig";
+import { getPaceMessage } from "./agent";
 import "./App.css";
 
 // Illustrative demo rate only, BOT Chain's token does not yet have a reliable public price feed.
 const BOT_TO_NAIRA_RATE = 50000;
 
 function App() {
-  // Holds the connected wallet's address once the user connects, empty string means not connected yet.
   const [account, setAccount] = useState("");
-
-  // Form fields for creating a new goal.
   const [label, setLabel] = useState("");
   const [targetAmount, setTargetAmount] = useState("");
   const [deadline, setDeadline] = useState("");
   const [payoutAddress, setPayoutAddress] = useState("");
-
-  // Form field for contributing to a goal. Hardcoded to goal 0 for now, the first goal created during testing.
   const [contributionAmount, setContributionAmount] = useState("");
-
-  // Holds goal 0's progress, read directly from the contract.
   const [progress, setProgress] = useState(null);
 
-  // Opens MetaMask and asks the user to connect their wallet to this site.
+  // Holds the AI-generated nudge message, separate from progress since it loads a moment after.
+  const [nudgeMessage, setNudgeMessage] = useState("");
+
   async function connectWallet() {
     if (!window.ethereum) {
       alert("MetaMask is not installed. Please install it to use SchoolSave.");
@@ -34,33 +30,42 @@ function App() {
     setAccount(accounts[0]);
   }
 
-  // Gets a contract instance connected to the user's wallet, so transactions are signed by them.
   async function getContract() {
     const provider = new BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     return new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
   }
 
-  // Reads goal 0's progress from the contract and stores it as plain numbers for display.
+  // Reads goal 0's progress, then asks the agent for a nudge message based on those exact numbers.
   async function loadProgress() {
     const provider = new JsonRpcProvider("https://rpc.bohr.life");
     const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
 
     const result = await contract.getProgress(0);
-    setProgress({
+    const progressData = {
       saved: formatEther(result.saved),
       target: formatEther(result.target),
       remainingAmount: formatEther(result.remainingAmount),
       secondsRemaining: Number(result.secondsRemaining),
-    });
+    };
+    setProgress(progressData);
+
+    // Only ask for a nudge once there's an actual goal to talk about.
+    if (Number(progressData.target) > 0) {
+      const message = await getPaceMessage({
+        savedBOT: Number(progressData.saved),
+        targetBOT: Number(progressData.target),
+        secondsRemaining: progressData.secondsRemaining,
+        label: "your school fees goal",
+      });
+      setNudgeMessage(message);
+    }
   }
 
-  // Loads progress once when the app first renders.
   useEffect(() => {
     loadProgress();
   }, []);
 
-  // Sends the create goal form to the contract.
   async function handleCreateGoal(event) {
     event.preventDefault();
 
@@ -88,7 +93,6 @@ function App() {
     loadProgress();
   }
 
-  // Sends a contribution toward goal 0, the value is attached to the transaction itself, not passed as a parameter.
   async function handleContribute(event) {
     event.preventDefault();
 
@@ -106,8 +110,6 @@ function App() {
     loadProgress();
   }
 
-  // Sends the release transaction for goal 0. The contract itself enforces eligibility,
-  // this call will fail if the deadline has not passed and the target has not been met.
   async function handleRelease() {
     if (!account) {
       alert("Connect your wallet first.");
@@ -122,7 +124,6 @@ function App() {
     loadProgress();
   }
 
-  // Converts a number of seconds into a simple days and hours display, easier to read than raw seconds.
   function formatTimeRemaining(seconds) {
     if (seconds <= 0) return "Deadline has passed";
     const days = Math.floor(seconds / 86400);
@@ -130,8 +131,6 @@ function App() {
     return `${days} day(s), ${hours} hour(s) remaining`;
   }
 
-  // The release button is only meaningful to show once the goal is actually eligible,
-  // either the deadline has passed, or the target has been fully saved.
   const isReleasable =
     progress &&
     (progress.secondsRemaining <= 0 || Number(progress.remainingAmount) <= 0);
@@ -203,6 +202,7 @@ function App() {
           <p>Target: {progress.target} BOT</p>
           <p>Remaining: {progress.remainingAmount} BOT</p>
           <p>{formatTimeRemaining(progress.secondsRemaining)}</p>
+          {nudgeMessage && <p className="nudge-message">{nudgeMessage}</p>}
           <button onClick={handleRelease} disabled={!isReleasable}>
             {isReleasable ? "Release Funds" : "Not yet releasable"}
           </button>
