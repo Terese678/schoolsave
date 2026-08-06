@@ -43,8 +43,6 @@ function App() {
 
   // Reads goal 0's progress from the contract and stores it as plain numbers for display.
   async function loadProgress() {
-    // Reads don't need a wallet signer, connecting straight to BOT Chain's RPC
-    // avoids conflicts between multiple installed wallet extensions.
     const provider = new JsonRpcProvider("https://rpc.bohr.life");
     const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
 
@@ -108,6 +106,22 @@ function App() {
     loadProgress();
   }
 
+  // Sends the release transaction for goal 0. The contract itself enforces eligibility,
+  // this call will fail if the deadline has not passed and the target has not been met.
+  async function handleRelease() {
+    if (!account) {
+      alert("Connect your wallet first.");
+      return;
+    }
+
+    const contract = await getContract();
+    const tx = await contract.release(0);
+    await tx.wait();
+
+    alert("Goal released successfully.");
+    loadProgress();
+  }
+
   // Converts a number of seconds into a simple days and hours display, easier to read than raw seconds.
   function formatTimeRemaining(seconds) {
     if (seconds <= 0) return "Deadline has passed";
@@ -115,6 +129,12 @@ function App() {
     const hours = Math.floor((seconds % 86400) / 3600);
     return `${days} day(s), ${hours} hour(s) remaining`;
   }
+
+  // The release button is only meaningful to show once the goal is actually eligible,
+  // either the deadline has passed, or the target has been fully saved.
+  const isReleasable =
+    progress &&
+    (progress.secondsRemaining <= 0 || Number(progress.remainingAmount) <= 0);
 
   return (
     <div className="app">
@@ -183,6 +203,9 @@ function App() {
           <p>Target: {progress.target} BOT</p>
           <p>Remaining: {progress.remainingAmount} BOT</p>
           <p>{formatTimeRemaining(progress.secondsRemaining)}</p>
+          <button onClick={handleRelease} disabled={!isReleasable}>
+            {isReleasable ? "Release Funds" : "Not yet releasable"}
+          </button>
         </div>
       ) : (
         <p>Loading progress...</p>
