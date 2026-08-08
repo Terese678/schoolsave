@@ -83,7 +83,7 @@ function App() {
   // WILL be assigned to the next created goal, so the most recently created
   // goal (if any exist) is nextGoalId - 1. If nextGoalId is 0, no goal exists yet.
   async function detectLatestGoalId() {
-    const provider = new JsonRpcProvider("https://rpc.bohr.life");
+    const provider = new JsonRpcProvider("https://rpc.botchain.ai");
     const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
     const nextId = await contract.nextGoalId();
     if (nextId > 0n) {
@@ -98,7 +98,7 @@ function App() {
   async function loadProgress(goalId) {
     if (goalId === null || goalId === undefined) return;
 
-    const provider = new JsonRpcProvider("https://rpc.bohr.life");
+    const provider = new JsonRpcProvider("https://rpc.botchain.ai");
     const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
     const result = await contract.getProgress(goalId);
     const progressData = {
@@ -133,7 +133,7 @@ function App() {
   // so the My Goals list can show the full history, not just the latest one.
   async function fetchAllGoals() {
     setGoalsLoading(true);
-    const provider = new JsonRpcProvider("https://rpc.bohr.life");
+    const provider = new JsonRpcProvider("https://rpc.botchain.ai");
     const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
     const nextId = await contract.nextGoalId();
 
