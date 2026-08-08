@@ -1,0 +1,481 @@
+/* Fonts: Fraunces for warmth and character in headings, Inter for readability, JetBrains Mono for financial figures. */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap');
+
+:root {
+  --ink: #0A1B2A;
+  --deep-teal: #123B45;
+  --horizon-gold: #F4A65E;
+  --coral: #E8735A;
+  --seafoam: #8FD3C7;
+  --pearl: #F7F3EC;
+  --pearl-dim: rgba(247, 243, 236, 0.7);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--pearl);
+  font-family: 'Inter', sans-serif;
+}
+
+.page {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.horizon {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    var(--ink) 0%,
+    var(--deep-teal) 45%,
+    #1a4a52 70%,
+    var(--coral) 100%
+  );
+  background-size: 100% 200%;
+  animation: driftLight 18s ease-in-out infinite alternate;
+}
+
+.horizon::before {
+  content: "";
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  width: 900px;
+  height: 900px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(244, 166, 94, 0.35) 0%, rgba(244, 166, 94, 0) 65%);
+  animation: pulseGlow 9s ease-in-out infinite;
+}
+
+@keyframes driftLight {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 0% 30%; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+}
+
+.hero {
+  text-align: center;
+  padding: 5rem 1.5rem 3rem;
+}
+
+.eyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--horizon-gold);
+  margin-bottom: 0.75rem;
+}
+
+.hero h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: clamp(2.75rem, 6vw, 4.5rem);
+  line-height: 1.15;
+  margin: 0;
+  letter-spacing: -0.01em;
+  font-variation-settings: 'opsz' 40;
+  background: linear-gradient(135deg, var(--horizon-gold), var(--coral));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.tagline {
+  font-size: 1.05rem;
+  color: var(--pearl-dim);
+  max-width: 32rem;
+  margin: 1rem auto 2rem;
+  line-height: 1.6;
+}
+
+.wallet-status {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--seafoam);
+}
+
+.wave-divider {
+  height: 2px;
+  max-width: 640px;
+  margin: 0 auto 2rem;
+  background: linear-gradient(90deg, transparent, var(--horizon-gold), transparent);
+  opacity: 0.5;
+}
+
+/* ---------------------------------------------------------------- */
+/* Tab nav: switches between the "Track" (status/history) and        */
+/* "Manage" (create/contribute) halves of the app. Styled as a       */
+/* pill-shaped segmented control matching the card language.         */
+/* ---------------------------------------------------------------- */
+
+.tab-nav {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  max-width: 320px;
+  margin: 0 auto 2.5rem;
+  padding: 0.3rem;
+  background: rgba(10, 27, 42, 0.5);
+  border: 1px solid rgba(247, 243, 236, 0.1);
+  border-radius: 999px;
+}
+
+.tab-button {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 1rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--pearl-dim);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.tab-button:hover {
+  color: var(--pearl);
+}
+
+.tab-button-active {
+  background: linear-gradient(135deg, var(--horizon-gold), var(--coral));
+  color: var(--ink);
+}
+
+.tab-panel-hidden {
+  display: none;
+}
+
+.content {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 1.5rem 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.card {
+  background: rgba(18, 59, 69, 0.45);
+  border: 1px solid rgba(244, 166, 94, 0.15);
+  border-radius: 20px;
+  padding: 2rem;
+  backdrop-filter: blur(6px);
+}
+
+.card h2 {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 1.4rem;
+  margin: 0 0 1.25rem;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+input {
+  background: rgba(10, 27, 42, 0.6);
+  border: 1px solid rgba(247, 243, 236, 0.15);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  color: var(--pearl);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+}
+
+input::placeholder {
+  color: rgba(247, 243, 236, 0.4);
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--horizon-gold);
+}
+
+.conversion-note {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--seafoam);
+  margin: -0.4rem 0 0;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--horizon-gold), var(--coral));
+  color: var(--ink);
+  border: none;
+  border-radius: 10px;
+  padding: 0.85rem 1.5rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(244, 166, 94, 0.25);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--seafoam);
+  color: var(--seafoam);
+  border-radius: 10px;
+  padding: 0.85rem 1.5rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(143, 211, 199, 0.1);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: rgba(247, 243, 236, 0.2);
+  color: var(--pearl-dim);
+}
+
+.progress-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--pearl-dim);
+}
+
+.stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem;
+  color: var(--pearl);
+}
+
+.time-remaining {
+  font-size: 0.9rem;
+  color: var(--seafoam);
+  margin: 0 0 1.25rem;
+}
+
+.nudge-message {
+  background: rgba(232, 115, 90, 0.12);
+  border-left: 3px solid var(--coral);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  font-style: italic;
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
+}
+
+.why-section {
+  text-align: center;
+  padding: 1rem 0 0.5rem;
+}
+
+.why-section p {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--pearl-dim);
+  max-width: 34rem;
+  margin: 0 auto;
+}
+
+.why-signature {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  color: var(--seafoam);
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}
+
+.why-section p em {
+  font-style: italic;
+  color: var(--horizon-gold);
+  font-size: 1.1rem;
+}
+
+/* ---------------------------------------------------------------- */
+/* My Goals: a horizontally scrolling row of "notebook tab" cards,   */
+/* one per goal ever created. Same card language as .card, but sized */
+/* and laid out to work as a compact, tappable strip.                */
+/* ---------------------------------------------------------------- */
+
+.goals-list-card {
+  padding-bottom: 1.5rem;
+}
+
+.goals-row {
+  display: flex;
+  gap: 0.9rem;
+  overflow-x: auto;
+  padding: 0.25rem 0.25rem 0.75rem;
+  margin: 0 -0.25rem;
+  scroll-snap-type: x proximity;
+}
+
+.goals-row::-webkit-scrollbar {
+  height: 6px;
+}
+.goals-row::-webkit-scrollbar-track {
+  background: transparent;
+}
+.goals-row::-webkit-scrollbar-thumb {
+  background: rgba(244, 166, 94, 0.35);
+  border-radius: 999px;
+}
+
+.goal-chip {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  width: 190px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: rgba(10, 27, 42, 0.55);
+  border: 1px solid rgba(247, 243, 236, 0.12);
+  border-radius: 14px;
+  padding: 1rem;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  color: var(--pearl);
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.goal-chip:hover {
+  transform: translateY(-2px);
+  border-color: rgba(244, 166, 94, 0.4);
+}
+
+.goal-chip-selected {
+  border-color: var(--horizon-gold);
+  box-shadow: 0 0 0 1px var(--horizon-gold), 0 8px 20px rgba(244, 166, 94, 0.18);
+  background: rgba(18, 59, 69, 0.65);
+}
+
+.goal-chip-complete {
+  border-color: rgba(143, 211, 199, 0.5);
+}
+
+.goal-chip-complete.goal-chip-selected {
+  border-color: var(--seafoam);
+  box-shadow: 0 0 0 1px var(--seafoam), 0 8px 20px rgba(143, 211, 199, 0.18);
+}
+
+.goal-chip-expired {
+  border-color: rgba(232, 115, 90, 0.45);
+  opacity: 0.85;
+}
+
+.goal-chip-released {
+  border-color: rgba(247, 243, 236, 0.25);
+  opacity: 0.6;
+}
+
+.goal-chip-released.goal-chip-selected {
+  border-color: var(--pearl);
+  box-shadow: 0 0 0 1px var(--pearl);
+  opacity: 0.85;
+}
+
+.goal-chip-expired.goal-chip-selected {
+  border-color: var(--coral);
+  box-shadow: 0 0 0 1px var(--coral), 0 8px 20px rgba(232, 115, 90, 0.18);
+  opacity: 1;
+}
+
+.goal-chip-tab {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--horizon-gold);
+  letter-spacing: 0.04em;
+}
+
+.goal-chip-label {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.3;
+  color: var(--pearl);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.goal-chip-bar {
+  height: 5px;
+  background: rgba(247, 243, 236, 0.12);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.goal-chip-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--horizon-gold), var(--coral));
+  transition: width 0.3s ease;
+}
+
+.goal-chip-complete .goal-chip-bar-fill {
+  background: var(--seafoam);
+}
+
+.goal-chip-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--pearl-dim);
+}
+
+.goal-chip-status {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--seafoam);
+}
+
+.goal-chip-complete .goal-chip-status {
+  color: var(--seafoam);
+}
+
+.goal-chip-expired .goal-chip-status {
+  color: var(--coral);
+}
+
+.goal-chip-released .goal-chip-status {
+  color: var(--pearl-dim);
+}
